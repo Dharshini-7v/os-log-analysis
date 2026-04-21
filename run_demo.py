@@ -25,22 +25,22 @@ sys.path.insert(0, str(project_root))
 def main():
     """Run the intelligent log analysis web application."""
     print("=" * 60)
-    print("🧠 INTELLIGENT OS LOG ANALYSIS SYSTEM")
+    print("INTELLIGENT OS LOG ANALYSIS SYSTEM")
     print("=" * 60)
     print()
-    print("📋 Project Overview:")
-    print("   • Intelligent OS Log Analysis and Prediction")
-    print("   • Using ML, DBMS, and Pattern Algorithms")
-    print("   • Real-time log processing and anomaly detection")
-    print("   • Web-based dashboard with authentication")
+    print("Project Overview:")
+    print("   * Intelligent OS Log Analysis and Prediction")
+    print("   * Using ML, DBMS, and Pattern Algorithms")
+    print("   * Real-time log processing and anomaly detection")
+    print("   * Web-based dashboard with authentication")
     print()
-    print("🔐 Demo Login Accounts:")
-    print("   • admin / admin123 (Administrator)")
-    print("   • analyst / analyst123 (Log Analyst)")
-    print("   • demo / demo (Viewer)")
+    print("Demo Login Accounts:")
+    print("   * admin / admin123 (Administrator)")
+    print("   * analyst / analyst123 (Log Analyst)")
+    print("   * demo / demo (Viewer)")
     print()
-    print("🌐 Access the application at: http://localhost:8500")
-    print("📝 Create new accounts via the registration page")
+    print("Access the application at: http://localhost:8500")
+    print("Create new accounts via the registration page")
     print("=" * 60)
     print()
     
@@ -56,9 +56,9 @@ def main():
         )
     except OSError as e:
         if "address already in use" in str(e).lower() or "10048" in str(e):
-            print("❌ Port 8500 is already in use!")
+            print("Port 8500 is already in use!")
             print()
-            print("💡 Solutions:")
+            print("Solutions:")
             print("1. Stop the other application using port 8500")
             print("2. Or run on a different port:")
             print("   python -m intelligent_log_analysis.main --port 8501")
@@ -67,19 +67,19 @@ def main():
         else:
             raise
     except ImportError as e:
-        print(f"❌ Import error: {e}")
+        print(f"Import error: {e}")
         print("Make sure all dependencies are installed:")
         print("pip install fastapi uvicorn PyJWT python-multipart jinja2 watchdog pydantic pyyaml")
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Error starting application: {e}")
+        print(f"Error starting application: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n🛑 Application stopped. Thanks for using the Intelligent Log Analysis System!")
+        print("\nApplication stopped. Thanks for using the Intelligent Log Analysis System!")
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
         sys.exit(1)

@@ -709,7 +709,7 @@ class DatabaseManager:
             if self.db_type == "postgresql":
                 query = """
                     SELECT pattern_id, pattern_type, sequence, frequency, confidence,
-                           last_detected
+                           last_detected, is_anomalous
                     FROM patterns
                     ORDER BY last_detected DESC
                     LIMIT $1
@@ -718,7 +718,7 @@ class DatabaseManager:
             elif self.db_type == "mysql":
                 query = """
                     SELECT pattern_id, pattern_type, sequence, frequency, confidence,
-                           last_detected
+                           last_detected, is_anomalous
                     FROM patterns
                     ORDER BY last_detected DESC
                     LIMIT %s
@@ -734,7 +734,8 @@ class DatabaseManager:
                     "sequence": json.loads(row["sequence"]),
                     "frequency": row["frequency"],
                     "confidence": row["confidence"],
-                    "last_seen": row["last_detected"].isoformat() if hasattr(row["last_detected"], 'isoformat') else str(row["last_detected"])
+                    "last_seen": row["last_detected"].isoformat() if hasattr(row["last_detected"], 'isoformat') else str(row["last_detected"]),
+                    "is_anomalous": bool(row["is_anomalous"])
                 }
                 for row in rows
             ]
@@ -853,24 +854,28 @@ class DatabaseManager:
                 pattern_count = await self._execute_query("SELECT COUNT(*) FROM patterns")
                 anomaly_count = await self._execute_query("SELECT COUNT(*) FROM anomalies")
                 prediction_count = await self._execute_query("SELECT COUNT(*) FROM predictions")
+                log_count = await self._execute_query("SELECT SUM(frequency) FROM log_templates")
             elif self.db_type == "mysql":
                 pattern_count = await self._execute_query("SELECT COUNT(*) FROM patterns")
                 anomaly_count = await self._execute_query("SELECT COUNT(*) FROM anomalies")
                 prediction_count = await self._execute_query("SELECT COUNT(*) FROM predictions")
+                log_count = await self._execute_query("SELECT SUM(frequency) FROM log_templates")
                 
                 # MySQL returns tuples, extract the count
                 pattern_count = pattern_count[0] if pattern_count else 0
                 anomaly_count = anomaly_count[0] if anomaly_count else 0
                 prediction_count = prediction_count[0] if prediction_count else 0
+                log_count = log_count[0] if log_count else 0
             
             stats["patterns_detected"] = pattern_count or 0
             stats["anomalies_found"] = anomaly_count or 0
             stats["predictions_made"] = prediction_count or 0
+            stats["logs_processed"] = int(log_count or 0)
                 
         except Exception as e:
             logger.error(f"Failed to get stats: {e}")
         
-        # Get log count from InfluxDB if available
+        # Get log count from InfluxDB if available - this will override the relational DB count if present
         if self.influx_client:
             try:
                 query_api = self.influx_client.query_api()

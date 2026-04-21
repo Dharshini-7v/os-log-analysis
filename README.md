@@ -93,6 +93,19 @@ Edit `config/default.yaml` to customize system behavior:
 - Database connections
 - Alert thresholds
 
+### 🌐 GitHub Pages Hosting
+
+Since GitHub Pages only supports static content, a specialized **Static Demo** version of the dashboard is available.
+
+1.  **Preparation**: The static version is located in the `docs/` directory.
+2.  **Deployment**:
+    - Push your code to GitHub.
+    - Go to **Settings > Pages** in your repository.
+    - Select **Deploy from a branch**.
+    - Choose the `main` branch and the `/docs` folder.
+    - Save and wait for the site to go live.
+3.  **Limitations**: The GitHub Pages version uses simulated data to showcase the UI. For real log analysis, you must run the Python backend locally or on a server like Heroku.
+
 ### Adding New Features
 1. Implement core logic in `intelligent_log_analysis/core/`
 2. Add data models in `intelligent_log_analysis/models/`

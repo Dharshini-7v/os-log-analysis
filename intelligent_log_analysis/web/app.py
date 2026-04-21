@@ -325,6 +325,7 @@ class PatternInfo(BaseModel):
     confidence: float
     pattern_type: str
     last_seen: str
+    is_anomalous: bool = False
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -916,7 +917,8 @@ async def get_patterns(request: Request, limit: int = 20) -> List[PatternInfo]:
                         frequency=pattern.get("frequency", 0),
                         confidence=pattern.get("confidence", 0.0),
                         pattern_type=pattern.get("pattern_type", "normal"),
-                        last_seen=pattern.get("last_seen", "")
+                        last_seen=pattern.get("last_seen", ""),
+                        is_anomalous=pattern.get("is_anomalous", False)
                     )
                     for pattern in db_patterns
                 ]
@@ -932,7 +934,8 @@ async def get_patterns(request: Request, limit: int = 20) -> List[PatternInfo]:
             frequency=pattern.get("frequency", 0),
             confidence=pattern.get("confidence", 0.0),
             pattern_type=pattern.get("pattern_type", "normal"),
-            last_seen=pattern.get("last_seen", "")
+            last_seen=pattern.get("last_seen", ""),
+            is_anomalous=pattern.get("is_anomalous", False)
         )
         for pattern in recent_patterns
     ]
@@ -1152,7 +1155,7 @@ async def demo_data_generator():
         try:
             # Generate logs frequently
             await generate_demo_log()
-            await asyncio.sleep(2)
+            await asyncio.sleep(10)
             
             # Generate anomalies occasionally
             if len(demo_data["logs"]) % 20 == 0:

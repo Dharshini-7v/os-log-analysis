@@ -1,0 +1,87 @@
+"TimeGenerated","Source","EntryType","Message"
+"3/11/2026 7:40:25 PM","Microsoft-Windows-WindowsUpdateClient","Information","Installation Successful: Windows successfully installed the following update: Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.445.478.0) - Current Channel (Broad)"
+"3/11/2026 7:40:20 PM","Microsoft-Windows-Power-Troubleshooter","Information","The system has returned from a low power state.
+
+Sleep Time: 2026-03-11T14:01:30.6908350Z
+Wake Time: 2026-03-11T14:10:18.6544819Z
+
+Wake Source: 5Microsoft AC Adapter"
+"3/11/2026 7:40:18 PM","BTHUSB","Warning","The local adapter does not support an important Low Energy controller state to support peripheral mode.  The minimum required supported state mask is 0x2491f7fffff, got 0x1fffffff.  Low Energy peripheral role functionality will not be available."
+"3/11/2026 7:40:18 PM","BTHUSB","Information","Windows cannot store Bluetooth authentication codes (link keys) on the local adapter. Bluetooth keyboards might not work in the system BIOS during startup."
+"3/11/2026 7:40:15 PM","Microsoft-Windows-Kernel-General","Information","Possible detection of CVE: 2026-03-11T14:10:15.5000000Z
+Additional Information: 2026-03-11T14:01:33.1174717Z
+
+This Event is generated when an attempt to exploit a known vulnerability (2026-03-11T14:10:15.5000000Z) is detected.
+This Event is raised by a User mode process.
+"
+"3/11/2026 7:31:33 PM","Microsoft-Windows-Kernel-Power","Information","The description for Event ID '107' in Source 'Microsoft-Windows-Kernel-Power' cannot be found.  The local computer may not have the necessary registry information or message DLL files to display the message, or you may not have permission to access them.  The following information is part of the event:'4', '4', '4', '2026-03-11T17:01:32.1637554Z', '2026-03-11T17:01:32.1637554Z', '4', '4'"
+"3/11/2026 7:31:32 PM","Microsoft-Windows-Kernel-Power","Information","The description for Event ID '42' in Source 'Microsoft-Windows-Kernel-Power' cannot be found.  The local computer may not have the necessary registry information or message DLL files to display the message, or you may not have permission to access them.  The following information is part of the event:'4', '4', '0', '4', '1'"
+"3/11/2026 7:31:27 PM","Microsoft-Windows-WindowsUpdateClient","Information","Installation Started: Windows has started installing the following update: Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.445.478.0) - Current Channel (Broad)"
+"3/11/2026 7:31:27 PM","Microsoft-Windows-WindowsUpdateClient","Information","Windows Update started downloading an update."
+"3/11/2026 7:22:57 PM","DCOM","Warning","The description for Event ID '10016' in Source 'DCOM' cannot be found.  The local computer may not have the necessary registry information or message DLL files to display the message, or you may not have permission to access them.  The following information is part of the event:'application-specific', 'Local', 'Launch', 'Windows.SecurityCenter.WscDataProtection', 'Unavailable', 'NT AUTHORITY', 'SYSTEM', 'S-1-5-18', 'LocalHost (Using LRPC)', 'Unavailable', 'Unavailable'"
+"3/11/2026 7:22:57 PM","DCOM","Warning","The description for Event ID '10016' in Source 'DCOM' cannot be found.  The local computer may not have the necessary registry information or message DLL files to display the message, or you may not have permission to access them.  The following information is part of the event:'application-specific', 'Local', 'Launch', 'Windows.SecurityCenter.WscBrokerManager', 'Unavailable', 'NT AUTHORITY', 'SYSTEM', 'S-1-5-18', 'LocalHost (Using LRPC)', 'Unavailable', 'Unavailable'"
+"3/11/2026 7:22:57 PM","DCOM","Warning","The description for Event ID '10016' in Source 'DCOM' cannot be found.  The local computer may not have the necessary registry information or message DLL files to display the message, or you may not have permission to access them.  The following information is part of the event:'application-specific', 'Local', 'Launch', 'Windows.SecurityCenter.SecurityAppBroker', 'Unavailable', 'NT AUTHORITY', 'SYSTEM', 'S-1-5-18', 'LocalHost (Using LRPC)', 'Unavailable', 'Unavailable'"
+"3/11/2026 7:22:49 PM","Microsoft-Windows-Kernel-Processor-Power","Warning","The speed of Hyper-V logical processor 2 is being limited by system firmware. The processor has been in this reduced performance state for 3 seconds since the last report."
+"3/11/2026 7:22:49 PM","Microsoft-Windows-Kernel-Processor-Power","Warning","The speed of Hyper-V logical processor 0 is being limited by system firmware. The processor has been in this reduced performance state for 3 seconds since the last report."
+"3/11/2026 7:22:49 PM","Microsoft-Windows-Kernel-Processor-Power","Warning","The speed of Hyper-V logical processor 6 is being limited by system firmware. The processor has been in this reduced performance state for 3 seconds since the last report."
+"3/11/2026 7:22:49 PM","Microsoft-Windows-Kernel-Processor-Power","Warning","The speed of Hyper-V logical processor 1 is being limited by system firmware. The processor has been in this reduced performance state for 3 seconds since the last report."
+"3/11/2026 7:22:49 PM","Microsoft-Windows-Kernel-Processor-Power","Warning","The speed of Hyper-V logical processor 3 is being limited by system firmware. The processor has been in this reduced performance state for 3 seconds since the last report."
+"3/11/2026 7:22:49 PM","Microsoft-Windows-Kernel-Processor-Power","Warning","The speed of Hyper-V logical processor 4 is being limited by system firmware. The processor has been in this reduced performance state for 3 seconds since the last report."
+"3/11/2026 7:22:49 PM","Microsoft-Windows-Kernel-Processor-Power","Warning","The speed of Hyper-V logical processor 5 is being limited by system firmware. The processor has been in this reduced performance state for 3 seconds since the last report."
+"3/11/2026 7:22:49 PM","Microsoft-Windows-Kernel-Processor-Power","Warning","The speed of Hyper-V logical processor 7 is being limited by system firmware. The processor has been in this reduced performance state for 3 seconds since the last report."
+"3/11/2026 7:21:07 PM","DCOM","Warning","The description for Event ID '10016' in Source 'DCOM' cannot be found.  The local computer may not have the necessary registry information or message DLL files to display the message, or you may not have permission to access them.  The following information is part of the event:'machine-default', 'Local', 'Activation', '{F87B28F1-DA9A-4F35-8EC0-800EFCF26B83}', '{0868DC9B-D9A2-4F64-9362-133CEA201299}', 'NT AUTHORITY', 'NETWORK SERVICE', 'S-1-5-20', 'LocalHost (Using LRPC)', 'Unavailable', 'Unavailable'"
+"3/11/2026 7:21:06 PM","DCOM","Warning","The description for Event ID '10016' in Source 'DCOM' cannot be found.  The local computer may not have the necessary registry information or message DLL files to display the message, or you may not have permission to access them.  The following information is part of the event:'application-specific', 'Local', 'Activation', '{6B3B8D23-FA8D-40B9-8DBD-B950333E2C52}', '{4839DDB7-58C2-48F5-8283-E1D1807D0D7D}', 'NT AUTHORITY', 'LOCAL SERVICE', 'S-1-5-19', 'LocalHost (Using LRPC)', 'Unavailable', 'Unavailable'"
+"3/11/2026 7:21:06 PM","DCOM","Warning","The description for Event ID '10016' in Source 'DCOM' cannot be found.  The local computer may not have the necessary registry information or message DLL files to display the message, or you may not have permission to access them.  The following information is part of the event:'application-specific', 'Local', 'Activation', '{6B3B8D23-FA8D-40B9-8DBD-B950333E2C52}', '{4839DDB7-58C2-48F5-8283-E1D1807D0D7D}', 'NT AUTHORITY', 'LOCAL SERVICE', 'S-1-5-19', 'LocalHost (Using LRPC)', 'Unavailable', 'Unavailable'"
+"3/11/2026 7:20:57 PM","Service Control Manager","Error","The MongoDB Server (MongoDB) service terminated unexpectedly.  It has done this 1 time(s)."
+"3/11/2026 7:20:55 PM","Service Control Manager","Information","The following boot-start or system-start driver(s) did not load: 
+dam"
+"3/11/2026 7:20:54 PM","Microsoft-Windows-WLAN-AutoConfig","Information","WLAN Extensibility Module has successfully started.
+
+Module Path: C:\Windows\System32\bcmihvsrv64.dll
+"
+"3/11/2026 7:20:54 PM","Microsoft-Windows-WLAN-AutoConfig","Information","WLAN AutoConfig service has successfully started.
+"
+"3/11/2026 7:20:54 PM","Microsoft-Windows-Hyper-V-VmSwitch","Information","vmswitch.sys build 19041.amd64.vb_release_svc_prod1, debug false, official true, 1 1"
+"3/11/2026 7:20:54 PM","BTHUSB","Warning","The local adapter does not support an important Low Energy controller state to support peripheral mode.  The minimum required supported state mask is 0x2491f7fffff, got 0x1fffffff.  Low Energy peripheral role functionality will not be available."
+"3/11/2026 7:20:54 PM","BTHUSB","Information","Windows cannot store Bluetooth authentication codes (link keys) on the local adapter. Bluetooth keyboards might not work in the system BIOS during startup."
+"3/11/2026 7:20:53 PM","Microsoft-Windows-Winlogon","Information","User Logon Notification for Customer Experience Improvement Program"
+"3/11/2026 7:20:53 PM","Microsoft-Windows-DHCPv6-Client","Information","DHCPv6 client service is started"
+"3/11/2026 7:20:53 PM","Microsoft-Windows-FilterManager","Information","File System Filter 'bindflt' (10.0, 2091-04-16T05:25:03.0000000Z) has successfully loaded and registered with Filter Manager."
+"3/11/2026 7:20:53 PM","Microsoft-Windows-Dhcp-Client","Information","DHCPv4 client registered for shutdown notification"
+"3/11/2026 7:20:53 PM","Microsoft-Windows-Dhcp-Client","Information","DHCPv4 client service is started"
+"3/11/2026 7:20:53 PM","Microsoft-Windows-FilterManager","Information","File System Filter 'storqosflt' (10.0, 2038-12-03T14:48:20.0000000Z) has successfully loaded and registered with Filter Manager."
+"3/11/2026 7:20:53 PM","Microsoft-Windows-FilterManager","Information","File System Filter 'CldFlt' (10.0, 2032-05-25T13:36:53.0000000Z) has successfully loaded and registered with Filter Manager."
+"3/11/2026 7:20:53 PM","Microsoft-Windows-FilterManager","Information","File System Filter 'CldFlt' (Version 10.0, 2032-05-25T13:36:53.0000000Z) unloaded successfully."
+"3/11/2026 7:20:53 PM","Microsoft-Windows-FilterManager","Information","File System Filter 'CldFlt' (10.0, 2032-05-25T13:36:53.0000000Z) has successfully loaded and registered with Filter Manager."
+"3/11/2026 7:20:53 PM","Microsoft-Windows-FilterManager","Information","File System Filter 'luafv' (10.0, 1996-01-27T17:46:28.0000000Z) has successfully loaded and registered with Filter Manager."
+"3/11/2026 7:20:53 PM","Microsoft-Windows-FilterManager","Information","File System Filter 'wcifs' (10.0, 2043-11-04T16:34:53.0000000Z) has successfully loaded and registered with Filter Manager."
+"3/11/2026 7:20:52 PM","Microsoft-Windows-Directory-Services-SAM","Information","The security account manager is now logging periodic summary events for remote clients that call legacy password change or set RPC methods.
+
+For more information please see https://go.microsoft.com/fwlink/?linkid=2150956.
+"
+"3/11/2026 7:20:52 PM","Microsoft-Windows-Directory-Services-SAM","Information","The domain is configured with the following minimum password length-related settings.
+
+MinimumPasswordLength: 0
+
+RelaxMinimumPasswordLengthLimits: 0
+
+MinimumPasswordLengthAudit: -1
+
+For more information see https://go.microsoft.com/fwlink/?LinkId=2097191.
+"
+"3/11/2026 7:20:52 PM","Microsoft-Windows-Directory-Services-SAM","Information","Remote calls to the SAM database are being restricted using the default security descriptor: O:SYG:SYD:(A;;RC;;;BA).
+For more information please see http://go.microsoft.com/fwlink/?LinkId=787651."
+"3/11/2026 7:20:52 PM","Microsoft-Windows-Wininit","Information","Key Guard was started and will protect VSM-isolated keys."
+"3/11/2026 7:20:52 PM","Microsoft-Windows-Wininit","Information","Credential Guard configuration: 0, 0"
+"3/11/2026 7:20:50 PM","Microsoft-Windows-Kernel-Power","Information","The description for Event ID '521' in Source 'Microsoft-Windows-Kernel-Power' cannot be found.  The local computer may not have the necessary registry information or message DLL files to display the message, or you may not have permission to access them.  The following information is part of the event:'1', '0', '0'"
+"3/11/2026 7:20:50 PM","Microsoft-Windows-Kernel-Power","Information","The description for Event ID '105' in Source 'Microsoft-Windows-Kernel-Power' cannot be found.  The local computer may not have the necessary registry information or message DLL files to display the message, or you may not have permission to access them.  The following information is part of the event:'false', '0', '0'"
+"3/11/2026 7:20:50 PM","Microsoft-Windows-Kernel-Power","Information","The description for Event ID '521' in Source 'Microsoft-Windows-Kernel-Power' cannot be found.  The local computer may not have the necessary registry information or message DLL files to display the message, or you may not have permission to access them.  The following information is part of the event:'0', '0', '0'"
+"3/11/2026 7:20:50 PM","Microsoft-Windows-Kernel-Processor-Power","Information","Hyper-V logical processor 7 exposes the following power management capabilities:
+
+Idle state type: 1 (3 state(s))
+
+Performance state type: 1
+Nominal Frequency (MHz): 2801
+Maximum performance percentage: 100
+Minimum performance percentage: 42
+Minimum throttle percentage: 5"
