@@ -26,6 +26,9 @@ from ..utils.config import ConfigManager
 from ..storage.database import get_database, initialize_database, close_database
 
 logger = get_logger("web")
+WEB_DIR = Path(__file__).resolve().parent
+STATIC_DIR = WEB_DIR / "static"
+TEMPLATES_DIR = WEB_DIR / "templates"
 
 # Global instances
 config_manager: Optional[ConfigManager] = None
@@ -242,9 +245,9 @@ async def run_demo_generation():
             logger.error(f"Error in demo generation: {e}")
             await asyncio.sleep(10)
 
-# Mount static files and templates
-app.mount("/static", StaticFiles(directory="intelligent_log_analysis/web/static"), name="static")
-templates = Jinja2Templates(directory="intelligent_log_analysis/web/templates")
+# Mount static files and templates using absolute paths so deployment cwd does not matter.
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 # Authentication functions
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
