@@ -775,10 +775,13 @@ async def dashboard(request: Request):
     if not user:
         return RedirectResponse(url="/")
     
-    return templates.TemplateResponse("dashboard.html", {
-        "request": request,
-        "user": user
-    })
+    return templates.TemplateResponse(
+        request,
+        "dashboard.html",
+        {
+            "user": user
+        }
+    )
 
 
 @app.get("/logout")
