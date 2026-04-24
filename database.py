@@ -21,13 +21,20 @@ class DatabaseManager:
         """Initialize database connection pool and create tables."""
         mysql_config = self.config.get("database", {}).get("mysql", {})
         
+        # Override with environment variables if available (for Docker)
+        host = os.getenv("MYSQL_HOST", mysql_config.get("host", "localhost"))
+        port = int(os.getenv("MYSQL_PORT", mysql_config.get("port", 3306)))
+        user = os.getenv("MYSQL_USER", mysql_config.get("username", "root"))
+        password = os.getenv("MYSQL_PASSWORD", mysql_config.get("password", ""))
+        database = os.getenv("MYSQL_DATABASE", mysql_config.get("database", "intelligent_log_analysis"))
+
         try:
             self.pool = await aiomysql.create_pool(
-                host=mysql_config.get("host", "localhost"),
-                port=mysql_config.get("port", 3306),
-                user=mysql_config.get("username", "root"),
-                password=mysql_config.get("password", ""),
-                db=mysql_config.get("database", "intelligent_log_analysis"),
+                host=host,
+                port=port,
+                user=user,
+                password=password,
+                db=database,
                 autocommit=True,
                 minsize=1,
                 maxsize=mysql_config.get("connection_pool_size", 10)

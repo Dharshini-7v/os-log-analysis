@@ -16,34 +16,37 @@ pip install fastapi uvicorn PyJWT python-multipart jinja2 watchdog pydantic pyya
 # Run the main application with web dashboard
 python run_demo.py
 ```
-Access at: http://localhost:8000
+Access at: http://localhost:8700
 
 #### Option 2: Using the main module
 ```bash
-# Run with default settings (port 8000)
+# Run with default settings (port 8700)
 python -m intelligent_log_analysis.main
-
-# Run on custom port (if 8000 is busy)
-python -m intelligent_log_analysis.main --port 8080
-
-# Run in CLI mode (no web interface)
-python -m intelligent_log_analysis.main --cli
-
-# Run with custom config and log level
-python -m intelligent_log_analysis.main --config config/custom.yaml --log-level DEBUG
 ```
+Access at: http://localhost:8700
+
+#### Option 3: Docker (Recommended for production)
+If you have Docker and Docker Compose installed:
+```bash
+# Build and start the application and database
+docker compose up --build
+```
+Access at: http://localhost:8700
+
+Note: open `http://localhost:8700` or `http://127.0.0.1:8700` in your browser.
+Do not open `http://0.0.0.0:8700`; `0.0.0.0` is the container bind address, not a browsable host URL.
 
 #### Port Management
-If port 8000 is busy:
+If port 8700 is busy:
 ```bash
-# Check what's using port 8000
+# Check what's using port 8700
 python check_port.py --check
 
-# Kill processes using port 8000 (if safe to do so)
+# Kill processes using port 8700 (if safe to do so)
 python check_port.py --kill
 
 # Or run on a different port
-python -m intelligent_log_analysis.main --port 8001
+python -m intelligent_log_analysis.main --port 8701
 ```
 
 ## 🔐 Authentication
@@ -149,7 +152,7 @@ python -m intelligent_log_analysis.main --help
 Options:
 - `--config PATH` - Custom configuration file
 - `--log-level LEVEL` - Override log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-- `--port PORT` - Web interface port (default: 8000)
+- `--port PORT` - Web interface port (default: 8700)
 - `--cli` - Run in CLI mode without web interface
 
 ## 📝 License

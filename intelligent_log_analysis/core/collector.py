@@ -38,25 +38,34 @@ class LogFile:
 class LogFileHandler(FileSystemEventHandler):
     """File system event handler for log files."""
     
-    def __init__(self, collector: 'LogCollector'):
+    def __init__(self, collector: 'LogCollector', loop: asyncio.AbstractEventLoop):
         self.collector = collector
+        self.loop = loop
         super().__init__()
     
     def on_modified(self, event):
         """Handle file modification events."""
         if not event.is_directory:
-            asyncio.create_task(self.collector._handle_file_event(event.src_path, 'modified'))
+            asyncio.run_coroutine_threadsafe(
+                self.collector._handle_file_event(event.src_path, 'modified'),
+                self.loop
+            )
     
     def on_created(self, event):
         """Handle file creation events."""
         if not event.is_directory:
-            asyncio.create_task(self.collector._handle_file_event(event.src_path, 'created'))
+            asyncio.run_coroutine_threadsafe(
+                self.collector._handle_file_event(event.src_path, 'created'),
+                self.loop
+            )
     
     def on_moved(self, event):
         """Handle file move events (log rotation)."""
         if not event.is_directory:
-            # Handle log rotation - old file moved, new file may be created
-            asyncio.create_task(self.collector._handle_rotation(event.src_path, event.dest_path))
+            asyncio.run_coroutine_threadsafe(
+                self.collector._handle_rotation(event.src_path, event.dest_path),
+                self.loop
+            )
 
 
 class LogCollector:
@@ -180,12 +189,13 @@ class LogCollector:
     def _start_file_monitoring(self) -> None:
         """Start file system monitoring for all sources."""
         monitored_dirs: Set[str] = set()
+        loop = asyncio.get_event_loop()
         
         for log_file in self.monitored_files.values():
             parent_dir = str(log_file.path.parent)
             if parent_dir not in monitored_dirs:
                 observer = Observer()
-                event_handler = LogFileHandler(self)
+                event_handler = LogFileHandler(self, loop)
                 observer.schedule(event_handler, parent_dir, recursive=False)
                 observer.start()
                 

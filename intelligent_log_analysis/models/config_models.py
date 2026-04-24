@@ -189,7 +189,7 @@ class APIConfig(BaseModel):
     """Configuration for API server."""
     
     host: str = Field(default="0.0.0.0", description="API server host")
-    port: int = Field(default=8000, gt=0, le=65535, description="API server port")
+    port: int = Field(default=8700, gt=0, le=65535, description="API server port")
     workers: int = Field(default=4, gt=0, description="Number of worker processes")
     
     # Authentication

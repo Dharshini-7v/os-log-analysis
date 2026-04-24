@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Port management utility for the Intelligent Log Analysis System.
-Helps check and manage port 8000 usage.
+Helps check and manage port 8700 usage.
 """
 
 import subprocess
@@ -9,7 +9,10 @@ import sys
 import re
 
 
-def check_port_usage(port=8000):
+DEFAULT_PORT = 8700
+
+
+def check_port_usage(port=DEFAULT_PORT):
     """Check what's using the specified port."""
     try:
         # Run netstat to check port usage
@@ -52,7 +55,7 @@ def check_port_usage(port=8000):
         return None
 
 
-def kill_process_on_port(port=8000):
+def kill_process_on_port(port=DEFAULT_PORT):
     """Kill processes using the specified port."""
     port_lines = check_port_usage(port)
     
@@ -87,22 +90,22 @@ def main():
     
     if len(sys.argv) > 1:
         if sys.argv[1] == "--kill":
-            kill_process_on_port(8000)
+            kill_process_on_port(DEFAULT_PORT)
         elif sys.argv[1] == "--check":
-            check_port_usage(8000)
+            check_port_usage(DEFAULT_PORT)
         elif sys.argv[1].startswith("--port="):
             port = int(sys.argv[1].split("=")[1])
             check_port_usage(port)
         else:
             print("Usage:")
-            print("  python check_port.py --check     # Check port 8000")
-            print("  python check_port.py --kill      # Kill processes on port 8000")
+            print(f"  python check_port.py --check     # Check port {DEFAULT_PORT}")
+            print(f"  python check_port.py --kill      # Kill processes on port {DEFAULT_PORT}")
             print("  python check_port.py --port=8001 # Check specific port")
     else:
-        check_port_usage(8000)
+        check_port_usage(DEFAULT_PORT)
         print("\nOptions:")
         print("  --check  : Check port usage")
-        print("  --kill   : Kill processes using port 8000")
+        print(f"  --kill   : Kill processes using port {DEFAULT_PORT}")
         print("  --port=N : Check specific port number")
 
 

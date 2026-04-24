@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Union
 from contextlib import asynccontextmanager
@@ -93,18 +94,25 @@ class DatabaseManager:
             
         mysql_config = self.config.get("database", {}).get("mysql", {})
         
-        if not mysql_config.get("host"):
+        # Override with environment variables if available (for Docker)
+        host = os.getenv("MYSQL_HOST", mysql_config.get("host", "localhost"))
+        port = int(os.getenv("MYSQL_PORT", mysql_config.get("port", 3306)))
+        user = os.getenv("MYSQL_USER", mysql_config.get("username", "root"))
+        password = os.getenv("MYSQL_PASSWORD", mysql_config.get("password", ""))
+        database = os.getenv("MYSQL_DATABASE", mysql_config.get("database", "intelligent_log_analysis"))
+
+        if not host:
             logger.info("MySQL not configured, skipping initialization")
             return
             
         try:
             # Create connection pool
             self.mysql_pool = await aiomysql.create_pool(
-                host=mysql_config.get("host", "localhost"),
-                port=mysql_config.get("port", 3306),
-                user=mysql_config.get("username", "root"),
-                password=mysql_config.get("password", ""),
-                db=mysql_config.get("database", "intelligent_log_analysis"),
+                host=host,
+                port=port,
+                user=user,
+                password=password,
+                db=database,
                 minsize=1,
                 maxsize=mysql_config.get("connection_pool_size", 10),
                 autocommit=True

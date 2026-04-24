@@ -1,0 +1,62 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: log-analysis-db
+    restart: always
+    environment:
+      - MYSQL_DATABASE=intelligent_log_analysis
+      - MYSQL_USER=log_analyzer
+      - MYSQL_PASSWORD=LogAnalyzer@2026
+      - MYSQL_ROOT_PASSWORD=root_password_change_me
+    ports:
+      - "127.0.0.1:3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot_password_change_me"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./setup_mysql.sql:/docker-entrypoint-initdb.d/setup_mysql.sql
+    networks:
+      - log-net
+
+  app:
+    build: .
+    container_name: log-analysis-app
+    restart: always
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=log_analyzer
+      - MYSQL_PASSWORD=LogAnalyzer@2026
+      - MYSQL_DATABASE=intelligent_log_analysis
+    ports:
+      - "127.0.0.1:8700:8700"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8700/healthz')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - log-net
+    volumes:
+      - ./logs:/app/logs
+
+networks:
+  log-net:
+    driver: bridge
+
+volumes:
+  mysql_data:

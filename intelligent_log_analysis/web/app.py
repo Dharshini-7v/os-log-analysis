@@ -7,12 +7,11 @@ import hashlib
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, Form, HTTPException, Depends
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, Form, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.security import HTTPBearer
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel
 import jwt
 
 from ..models.log_models import ParsedLog, LogLevel, LogSource
@@ -33,6 +32,7 @@ config_manager: Optional[ConfigManager] = None
 db_manager: Optional[Any] = None
 log_parser: Optional[LogParser] = None
 log_collector: Optional[LogCollector] = None
+demo_generation_task: Optional[asyncio.Task] = None
 
 # Security configuration
 SECRET_KEY = "intelligent_log_analysis_secret_key_2024"
@@ -117,19 +117,23 @@ app = FastAPI(title="Intelligent Log Analysis Dashboard", version="1.0.0")
 @app.on_event("startup")
 async def startup_event():
     """Initialize system components on startup."""
-    global config_manager, db_manager, log_parser, log_collector
+    global config_manager, db_manager, log_parser, log_collector, demo_generation_task
     
     logger.info("Initializing Intelligent Log Analysis System...")
     
     try:
         # Load configuration
-        config_path = Path("config/default.yaml")
+        config_path = Path(__file__).resolve().parents[2] / "config" / "default.yaml"
         config_manager = ConfigManager(config_path)
         config = config_manager.get_all_config()
         
-        # Initialize database
-        db_manager = await initialize_database(config)
-        logger.info("Database initialized")
+        # Reuse the database connection created by the main entrypoint when available.
+        db_manager = await get_database()
+        if db_manager is None:
+            db_manager = await initialize_database(config)
+            logger.info("Database initialized")
+        else:
+            logger.info("Using existing database connection")
         
         # Initialize log parser
         parser_config = ParserConfig(
@@ -158,17 +162,31 @@ async def startup_event():
         logger.info("Log collector started")
         
         # Start demo data generation as fallback/enrichment
-        asyncio.create_task(run_demo_generation())
-        
+        await seed_demo_patterns_if_empty()
+        if demo_generation_task is None or demo_generation_task.done():
+            demo_generation_task = asyncio.create_task(run_demo_generation())
+
     except Exception as e:
         logger.error(f"Error during startup: {e}")
         # In demo mode, we continue even if some components fail
-        asyncio.create_task(run_demo_generation())
+        await seed_demo_patterns_if_empty()
+        if demo_generation_task is None or demo_generation_task.done():
+            demo_generation_task = asyncio.create_task(run_demo_generation())
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup components on shutdown."""
+    global demo_generation_task
+
     logger.info("Shutting down system components...")
+
+    if demo_generation_task and not demo_generation_task.done():
+        demo_generation_task.cancel()
+        try:
+            await demo_generation_task
+        except asyncio.CancelledError:
+            pass
+        demo_generation_task = None
     
     if log_collector:
         await log_collector.stop()
@@ -212,6 +230,8 @@ async def run_demo_generation():
             
             # Occasionally generate an anomaly or prediction
             import random
+            if random.random() < 0.08:
+                await generate_demo_pattern()
             if random.random() < 0.05:
                 await generate_demo_anomaly()
             if random.random() < 0.03:
@@ -326,6 +346,12 @@ class PatternInfo(BaseModel):
     pattern_type: str
     last_seen: str
     is_anomalous: bool = False
+
+
+@app.get("/healthz")
+async def healthz() -> Dict[str, str]:
+    """Container health endpoint used by Docker and local diagnostics."""
+    return {"status": "ok"}
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -1092,9 +1118,10 @@ async def generate_demo_pattern():
         "sequence": sequence,
         "frequency": random.randint(10, 100),
         "confidence": round(random.uniform(0.7, 1.0), 2),
-        "pattern_type": random.choice(["normal", "frequent", "periodic"]),
+        "pattern_type": random.choice(["normal", "frequent", "anomalous", "frequency", "temporal"]),
         "last_seen": datetime.now().isoformat()
     }
+    pattern["is_anomalous"] = pattern["pattern_type"] == "anomalous"
     
     demo_data["patterns"].append(pattern)
     demo_data["metrics"]["patterns_detected"] += 1
@@ -1148,58 +1175,14 @@ async def generate_demo_prediction():
     })
 
 
-# Background task to generate demo data
-async def demo_data_generator():
-    """Generate demo data periodically."""
-    while True:
-        try:
-            # Generate logs frequently
-            await generate_demo_log()
-            await asyncio.sleep(10)
-            
-            # Generate anomalies occasionally
-            if len(demo_data["logs"]) % 20 == 0:
-                await generate_demo_anomaly()
-            
-            # Generate patterns occasionally
-            if len(demo_data["logs"]) % 15 == 0:
-                await generate_demo_pattern()
-            
-            # Generate predictions rarely
-            if len(demo_data["logs"]) % 50 == 0:
-                await generate_demo_prediction()
-                
-        except Exception as e:
-            logger.error(f"Error generating demo data: {e}")
-            await asyncio.sleep(5)
+async def seed_demo_patterns_if_empty() -> None:
+    """Ensure the dashboard has baseline pattern data for charts."""
+    if demo_data["patterns"]:
+        return
 
-
-@app.on_event("startup")
-async def startup_event():
-    """Start background tasks and initialize database."""
-    # Initialize database
-    try:
-        from pathlib import Path
-        config_path = Path(__file__).parent.parent.parent / "config" / "default.yaml"
-        config_manager = ConfigManager(config_path)
-        await initialize_database(config_manager.get_all_config())
-        logger.info("Database initialized successfully")
-    except Exception as e:
-        logger.warning(f"Database initialization failed: {e}")
-        logger.info("Continuing with demo data only")
-    
-    # Start demo data generation
-    asyncio.create_task(demo_data_generator())
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on shutdown."""
-    from ..storage.database import close_database
-    await close_database()
-    logger.info("Database connections closed")
-
+    for _ in range(6):
+        await generate_demo_pattern()
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8700)

@@ -24,6 +24,8 @@ sys.path.insert(0, str(project_root))
 
 def main():
     """Run the intelligent log analysis web application."""
+    port = 8700
+
     print("=" * 60)
     print("INTELLIGENT OS LOG ANALYSIS SYSTEM")
     print("=" * 60)
@@ -39,7 +41,7 @@ def main():
     print("   * analyst / analyst123 (Log Analyst)")
     print("   * demo / demo (Viewer)")
     print()
-    print("Access the application at: http://localhost:8500")
+    print(f"Access the application at: http://localhost:{port}")
     print("Create new accounts via the registration page")
     print("=" * 60)
     print()
@@ -47,21 +49,21 @@ def main():
     try:
         from intelligent_log_analysis.web.app import app
         
-        # Run the FastAPI application on the standard port
+        # Run the FastAPI application on the standard port.
         uvicorn.run(
             app, 
             host="0.0.0.0", 
-            port=8500,
+            port=port,
             log_level="info"
         )
     except OSError as e:
-        if "address already in use" in str(e).lower() or "10048" in str(e):
-            print("Port 8500 is already in use!")
+        if "address already in use" in str(e).lower() or "10048" in str(e) or "10013" in str(e):
+            print(f"Port {port} is unavailable.")
             print()
             print("Solutions:")
-            print("1. Stop the other application using port 8500")
+            print("1. Stop the other application using port 8700")
             print("2. Or run on a different port:")
-            print("   python -m intelligent_log_analysis.main --port 8501")
+            print("   python -m intelligent_log_analysis.main --port 8701")
             print()
             sys.exit(1)
         else:

@@ -11,29 +11,25 @@ logger = get_logger("demo")
 
 def run_demo():
     """Run the demo system with web interface."""
-    
-    # Setup logging
     setup_logging(level="INFO", log_file="logs/demo.log")
-    
+
     logger.info("Starting Intelligent Log Analysis Demo...")
-    
-    # Create necessary directories
+
     Path("logs").mkdir(exist_ok=True)
     Path("intelligent_log_analysis/web/static").mkdir(parents=True, exist_ok=True)
-    
-    print("🧠 Intelligent Log Analysis System - Demo Mode")
+
+    print("Intelligent Log Analysis System - Demo Mode")
     print("=" * 50)
-    print("🚀 Starting web server...")
-    print("📊 Dashboard will be available at: http://localhost:8000")
-    print("🔄 Demo data will be generated automatically")
-    print("⚡ Real-time updates via WebSocket")
+    print("Starting web server...")
+    print("Dashboard will be available at: http://localhost:8700")
+    print("Demo data will be generated automatically")
+    print("Real-time updates via WebSocket")
     print("=" * 50)
-    
-    # Run the web server
+
     uvicorn.run(
         app,
         host="0.0.0.0",
-        port=8000,
+        port=8700,
         log_level="info"
     )
 

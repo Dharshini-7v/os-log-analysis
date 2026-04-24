@@ -629,12 +629,34 @@
             });
         }
 
+        function getPatternBucket(pattern) {
+            const patternType = (pattern.pattern_type || '').toLowerCase();
+            if (pattern.is_anomalous || patternType === 'anomalous') {
+                return 'anomalous';
+            }
+            if (patternType === 'frequent' || patternType === 'frequency' || pattern.frequency > 50) {
+                return 'frequent';
+            }
+            return 'normal';
+        }
+
         function updatePatternChart(patterns) {
             if (typeof Chart === 'undefined') return;
             
-            const anomalousCount = patterns.filter(p => p.is_anomalous).length;
-            const frequentCount = patterns.filter(p => !p.is_anomalous && p.frequency > 50).length;
-            const normalCount = patterns.filter(p => !p.is_anomalous && p.frequency <= 50).length;
+            let normalCount = 0;
+            let frequentCount = 0;
+            let anomalousCount = 0;
+
+            patterns.forEach(pattern => {
+                const bucket = getPatternBucket(pattern);
+                if (bucket === 'anomalous') {
+                    anomalousCount += 1;
+                } else if (bucket === 'frequent') {
+                    frequentCount += 1;
+                } else {
+                    normalCount += 1;
+                }
+            });
             
             if (patternChart) {
                 patternChart.data.datasets[0].data = [normalCount, frequentCount, anomalousCount];
