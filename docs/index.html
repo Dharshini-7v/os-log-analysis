@@ -57,6 +57,14 @@
         .mobile-menu {
             display: none;
         }
+        .live-app-link {
+            background: rgba(17, 24, 39, 0.9);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        .live-app-link:hover {
+            background: rgba(17, 24, 39, 1);
+        }
         @media (max-width: 768px) {
             .desktop-nav { display: none; }
             .mobile-menu { display: block; }
@@ -73,6 +81,14 @@
                     <h1 class="text-2xl font-bold">Intelligent Log Analysis System</h1>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <a
+                        href="https://intelligent-os-log-analysis.onrender.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="live-app-link px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                        Open Live Render App
+                    </a>
                     <div class="bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold border border-amber-200">
                         Static Demo Mode
                     </div>
