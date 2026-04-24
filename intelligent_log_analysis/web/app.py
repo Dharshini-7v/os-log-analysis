@@ -81,14 +81,18 @@ def validate_username(username: str) -> tuple[bool, str]:
         return False, "Username already exists"
     return True, "Username is valid"
 
-def create_user(username: str, password: str, name: str, email: str, role: str = "viewer") -> bool:
+def create_user(username: str, password: str) -> bool:
     """Create a new user account."""
     try:
+        normalized_username = username.lower()
         # Hash the password
         hashed_password = hash_password(password)
+        name = normalized_username
+        email = f"{normalized_username}@local.user"
+        role = "viewer"
         
         # Add user to DEMO_USERS (in production, this would be saved to database)
-        DEMO_USERS[username.lower()] = {
+        DEMO_USERS[normalized_username] = {
             "password": hashed_password,
             "role": role,
             "name": name,
@@ -98,7 +102,7 @@ def create_user(username: str, password: str, name: str, email: str, role: str =
         }
         
         # Also try to save to database if available
-        asyncio.create_task(save_user_to_database(username.lower(), hashed_password, email, name, role))
+        asyncio.create_task(save_user_to_database(normalized_username, hashed_password, email, name, role))
         
         return True
     except Exception as e:
@@ -621,11 +625,7 @@ async def register_page(request: Request):
 async def register_user(
     request: Request,
     username: str = Form(...),
-    name: str = Form(...),
-    email: str = Form(...),
-    role: str = Form(...),
     password: str = Form(...),
-    confirm_password: str = Form(...)
 ):
     """Handle user registration."""
     try:
@@ -638,30 +638,9 @@ async def register_user(
             errors.append(username_msg)
         
         # Password validation
-        if password != confirm_password:
-            errors.append("Passwords do not match")
-        
         password_valid, password_msg = validate_password(password)
         if not password_valid:
             errors.append(password_msg)
-        
-        # Email validation
-        if not validate_email(email):
-            errors.append("Invalid email format")
-        
-        # Name validation
-        if len(name.strip()) < 2:
-            errors.append("Name must be at least 2 characters long")
-        
-        # Role validation
-        if role not in ["viewer", "log_analyst"]:
-            errors.append("Invalid role selected")
-        
-        # Check for existing email
-        for existing_user, user_data in DEMO_USERS.items():
-            if user_data.get("email", "").lower() == email.lower():
-                errors.append("Email address already registered")
-                break
         
         if errors:
             return auth_template_response(
@@ -704,7 +683,7 @@ async def register_user(
             return HTMLResponse(content=error_html)
         
         # Create the user
-        if create_user(username.lower(), password, name.strip(), email.lower(), role):
+        if create_user(username, password):
             return auth_template_response(
                 request,
                 "sign-in",
