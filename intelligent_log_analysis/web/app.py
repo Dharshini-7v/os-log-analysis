@@ -357,9 +357,31 @@ async def healthz() -> Dict[str, str]:
     return {"status": "ok"}
 
 
+def auth_template_response(
+    request: Request,
+    active_tab: str = "sign-in",
+    error_messages: Optional[List[str]] = None,
+    success_message: Optional[str] = None,
+    status_code: int = 200,
+) -> HTMLResponse:
+    """Render the shared sign-in/sign-up page."""
+    selected_tab = "sign-up" if active_tab == "sign-up" else "sign-in"
+    return templates.TemplateResponse(
+        request,
+        "auth.html",
+        {
+            "active_tab": selected_tab,
+            "error_messages": error_messages or [],
+            "success_message": success_message,
+        },
+        status_code=status_code,
+    )
+
+
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request):
-    """Login page."""
+    """Authentication page."""
+    return auth_template_response(request, "sign-in")
     return """
     <!DOCTYPE html>
     <html>
@@ -445,6 +467,7 @@ async def login_page(request: Request):
 @app.get("/register", response_class=HTMLResponse)
 async def register_page(request: Request):
     """Registration page."""
+    return auth_template_response(request, "sign-up")
     return """
     <!DOCTYPE html>
     <html>
@@ -596,6 +619,7 @@ async def register_page(request: Request):
 
 @app.post("/register")
 async def register_user(
+    request: Request,
     username: str = Form(...),
     name: str = Form(...),
     email: str = Form(...),
@@ -640,6 +664,12 @@ async def register_user(
                 break
         
         if errors:
+            return auth_template_response(
+                request,
+                "sign-up",
+                error_messages=errors,
+                status_code=400,
+            )
             error_html = f"""
             <!DOCTYPE html>
             <html>
@@ -675,6 +705,14 @@ async def register_user(
         
         # Create the user
         if create_user(username.lower(), password, name.strip(), email.lower(), role):
+            return auth_template_response(
+                request,
+                "sign-in",
+                success_message=(
+                    f"Account for {username.lower()} was created successfully. "
+                    "Sign in to open the dashboard."
+                ),
+            )
             success_html = f"""
             <!DOCTYPE html>
             <html>
@@ -728,6 +766,12 @@ async def register_user(
             """
             return HTMLResponse(content=success_html)
         else:
+            return auth_template_response(
+                request,
+                "sign-up",
+                error_messages=["Failed to create account. Please try again."],
+                status_code=500,
+            )
             return HTMLResponse(content="""
                 <script>
                     alert('Failed to create account. Please try again.');
@@ -737,6 +781,12 @@ async def register_user(
             
     except Exception as e:
         logger.error(f"Registration error: {e}")
+        return auth_template_response(
+            request,
+            "sign-up",
+            error_messages=["An error occurred during registration. Please try again."],
+            status_code=500,
+        )
         return HTMLResponse(content="""
             <script>
                 alert('An error occurred during registration. Please try again.');
@@ -746,10 +796,16 @@ async def register_user(
 
 
 @app.post("/login")
-async def login(username: str = Form(...), password: str = Form(...)):
+async def login(request: Request, username: str = Form(...), password: str = Form(...)):
     """Handle login form submission."""
     user = authenticate_user(username, password)
     if not user:
+        return auth_template_response(
+            request,
+            "sign-in",
+            error_messages=["Invalid username or password."],
+            status_code=401,
+        )
         return HTMLResponse(content="""
             <script>
                 alert('Invalid username or password!');

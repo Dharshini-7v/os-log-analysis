@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Log Analysis</title>
+    <style>
+        :root {
+            --page-bg:
+                radial-gradient(circle at top left, rgba(134, 239, 172, 0.16), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(96, 165, 250, 0.2), transparent 28%),
+                linear-gradient(140deg, #09111f 0%, #132238 42%, #1f3a5a 100%);
+            --card-bg: rgba(255, 255, 255, 0.96);
+            --card-border: rgba(15, 23, 42, 0.08);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-inverse: #e2e8f0;
+            --accent: #2563eb;
+            --accent-strong: #0f4fd1;
+            --accent-soft: rgba(37, 99, 235, 0.12);
+            --danger-bg: #fef2f2;
+            --danger-border: #fecaca;
+            --danger-text: #b91c1c;
+            --success-bg: #ecfdf5;
+            --success-border: #bbf7d0;
+            --success-text: #166534;
+            --input-border: #cbd5e1;
+            --input-focus: rgba(37, 99, 235, 0.18);
+            --shadow: 0 30px 80px rgba(2, 6, 23, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--page-bg);
+            color: var(--text-primary);
+        }
+
+        .page-shell {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 20px;
+        }
+
+        .auth-shell {
+            width: min(1040px, 100%);
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+        }
+
+        .brand-panel {
+            padding: 42px;
+            background:
+                linear-gradient(170deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.6)),
+                linear-gradient(120deg, rgba(37, 99, 235, 0.55), rgba(14, 116, 144, 0.42));
+            color: var(--text-inverse);
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            position: relative;
+        }
+
+        .brand-panel::after {
+            content: "";
+            position: absolute;
+            inset: auto -110px -110px auto;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: rgba(134, 239, 172, 0.12);
+        }
+
+        .brand-mark {
+            width: 56px;
+            height: 56px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .brand-panel h1 {
+            margin: 0;
+            font-size: clamp(2rem, 4vw, 3.1rem);
+            line-height: 1.05;
+            max-width: 9ch;
+        }
+
+        .brand-panel p {
+            margin: 0;
+            color: rgba(226, 232, 240, 0.82);
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 56ch;
+        }
+
+        .feature-list,
+        .demo-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .feature-item,
+        .demo-item {
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .feature-item strong,
+        .demo-item strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #f8fafc;
+            font-size: 0.95rem;
+        }
+
+        .feature-item span,
+        .demo-item span {
+            font-size: 0.9rem;
+            color: rgba(226, 232, 240, 0.8);
+        }
+
+        .demo-item code {
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            font-family: Consolas, monospace;
+        }
+
+        .auth-panel {
+            background: var(--card-bg);
+            padding: 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 22px;
+        }
+
+        .auth-header {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            width: fit-content;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent-strong);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .auth-header h2 {
+            margin: 0;
+            font-size: 2rem;
+            line-height: 1.1;
+        }
+
+        .auth-header p {
+            margin: 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .tab-switcher {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 6px;
+            border-radius: 18px;
+            background: #e2e8f0;
+        }
+
+        .tab-button {
+            border: none;
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #334155;
+            background: transparent;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--accent) 0%, #0891b2 100%);
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.24);
+        }
+
+        .tab-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .notice-stack {
+            display: grid;
+            gap: 10px;
+        }
+
+        .notice {
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid transparent;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .notice.error {
+            background: var(--danger-bg);
+            border-color: var(--danger-border);
+            color: var(--danger-text);
+        }
+
+        .notice.success {
+            background: var(--success-bg);
+            border-color: var(--success-border);
+            color: var(--success-text);
+        }
+
+        .auth-form-panel {
+            display: none;
+        }
+
+        .auth-form-panel.active {
+            display: block;
+        }
+
+        form {
+            display: grid;
+            gap: 16px;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .form-grid.two-col {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .form-group {
+            display: grid;
+            gap: 7px;
+        }
+
+        label {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        input,
+        select {
+            width: 100%;
+            border: 1px solid var(--input-border);
+            border-radius: 14px;
+            padding: 13px 14px;
+            font-size: 1rem;
+            color: #0f172a;
+            background: #ffffff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--input-focus);
+        }
+
+        .submit-button {
+            border: none;
+            border-radius: 16px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--accent) 0%, #0891b2 100%);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+        }
+
+        .submit-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .helper-copy {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .inline-link {
+            color: var(--accent-strong);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .inline-link:hover {
+            text-decoration: underline;
+        }
+
+        .requirements {
+            padding: 16px 18px;
+            border-radius: 18px;
+            background: #f8fafc;
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .requirements strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 900px) {
+            .auth-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-panel {
+                padding: 34px 28px 24px;
+            }
+
+            .auth-panel {
+                padding: 28px 22px 30px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page-shell {
+                padding: 18px 12px;
+            }
+
+            .brand-panel,
+            .auth-panel {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+
+            .form-grid.two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body data-active-tab="{{ active_tab }}">
+    <div class="page-shell">
+        <main class="auth-shell">
+            <section class="brand-panel">
+                <div class="brand-mark">IL</div>
+                <div>
+                    <h1>Analyze system logs with a live dashboard.</h1>
+                    <p>
+                        Monitor events, review anomalies, and track recurring patterns from one
+                        interface built for your Intelligent Log Analysis project.
+                    </p>
+                </div>
+
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <strong>Realtime Monitoring</strong>
+                        <span>Stream logs and follow system activity as it happens.</span>
+                    </div>
+                    <div class="feature-item">
+                        <strong>Pattern Detection</strong>
+                        <span>Surface recurring operational behavior and suspicious sequences.</span>
+                    </div>
+                    <div class="feature-item">
+                        <strong>Role-Based Access</strong>
+                        <span>Separate viewer and analyst access during demos and reviews.</span>
+                    </div>
+                </div>
+
+                <div class="demo-list">
+                    <div class="demo-item">
+                        <strong>Demo Accounts</strong>
+                        <span><code>admin / admin123</code></span>
+                    </div>
+                    <div class="demo-item">
+                        <strong>Analyst Access</strong>
+                        <span><code>analyst / analyst123</code></span>
+                    </div>
+                    <div class="demo-item">
+                        <strong>Viewer Access</strong>
+                        <span><code>demo / demo</code></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="auth-panel">
+                <div class="auth-header">
+                    <span class="eyebrow">Account Access</span>
+                    <h2>Choose how you want to enter.</h2>
+                    <p>Use the same screen to sign in to the dashboard or create a new account.</p>
+                </div>
+
+                <div class="tab-switcher" role="tablist" aria-label="Authentication options">
+                    <button
+                        id="sign-in-tab"
+                        class="tab-button{% if active_tab == 'sign-in' %} active{% endif %}"
+                        type="button"
+                        onclick="switchAuthTab('sign-in')"
+                    >
+                        Sign In
+                    </button>
+                    <button
+                        id="sign-up-tab"
+                        class="tab-button{% if active_tab == 'sign-up' %} active{% endif %}"
+                        type="button"
+                        onclick="switchAuthTab('sign-up')"
+                    >
+                        Sign Up
+                    </button>
+                </div>
+
+                {% if success_message or error_messages %}
+                <div class="notice-stack">
+                    {% if success_message %}
+                    <div class="notice success">{{ success_message }}</div>
+                    {% endif %}
+                    {% for error in error_messages %}
+                    <div class="notice error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div
+                    id="sign-in-panel"
+                    class="auth-form-panel{% if active_tab == 'sign-in' %} active{% endif %}"
+                >
+                    <form method="post" action="/login">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="login-username">Username</label>
+                                <input type="text" id="login-username" name="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="login-password">Password</label>
+                                <input type="password" id="login-password" name="password" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="submit-button">Sign In to Dashboard</button>
+                    </form>
+
+                    <p class="helper-copy">
+                        New here?
+                        <a href="/register" class="inline-link" onclick="event.preventDefault(); switchAuthTab('sign-up');">
+                            Create an account
+                        </a>
+                        from the sign up tab.
+                    </p>
+                </div>
+
+                <div
+                    id="sign-up-panel"
+                    class="auth-form-panel{% if active_tab == 'sign-up' %} active{% endif %}"
+                >
+                    <form method="post" action="/register" onsubmit="return validateRegistrationForm()">
+                        <div class="form-grid two-col">
+                            <div class="form-group">
+                                <label for="register-username">Username</label>
+                                <input type="text" id="register-username" name="username" minlength="3" maxlength="20" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="register-name">Full Name</label>
+                                <input type="text" id="register-name" name="name" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid two-col">
+                            <div class="form-group">
+                                <label for="register-email">Email</label>
+                                <input type="email" id="register-email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="register-role">Role</label>
+                                <select id="register-role" name="role" required>
+                                    <option value="viewer">Viewer</option>
+                                    <option value="log_analyst">Log Analyst</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-grid two-col">
+                            <div class="form-group">
+                                <label for="register-password">Password</label>
+                                <input type="password" id="register-password" name="password" minlength="6" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="register-confirm-password">Confirm Password</label>
+                                <input type="password" id="register-confirm-password" name="confirm_password" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-button">Create Account</button>
+                    </form>
+
+                    <div class="requirements">
+                        <strong>Account Requirements</strong>
+                        Username must be 3-20 characters using letters, numbers, or underscores.
+                        Passwords need at least 6 characters and must include letters and numbers.
+                    </div>
+
+                    <p class="helper-copy">
+                        Already registered?
+                        <a href="/" class="inline-link" onclick="event.preventDefault(); switchAuthTab('sign-in');">
+                            Switch back to sign in
+                        </a>.
+                    </p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function switchAuthTab(tabName) {
+            const selectedTab = tabName === "sign-up" ? "sign-up" : "sign-in";
+            const signInTab = document.getElementById("sign-in-tab");
+            const signUpTab = document.getElementById("sign-up-tab");
+            const signInPanel = document.getElementById("sign-in-panel");
+            const signUpPanel = document.getElementById("sign-up-panel");
+
+            signInTab.classList.toggle("active", selectedTab === "sign-in");
+            signUpTab.classList.toggle("active", selectedTab === "sign-up");
+            signInPanel.classList.toggle("active", selectedTab === "sign-in");
+            signUpPanel.classList.toggle("active", selectedTab === "sign-up");
+            document.body.dataset.activeTab = selectedTab;
+        }
+
+        function validateRegistrationForm() {
+            const username = document.getElementById("register-username").value.trim();
+            const fullName = document.getElementById("register-name").value.trim();
+            const email = document.getElementById("register-email").value.trim();
+            const password = document.getElementById("register-password").value;
+            const confirmPassword = document.getElementById("register-confirm-password").value;
+
+            if (username.length < 3) {
+                alert("Username must be at least 3 characters long.");
+                return false;
+            }
+
+            if (fullName.length < 2) {
+                alert("Name must be at least 2 characters long.");
+                return false;
+            }
+
+            if (!email.includes("@")) {
+                alert("Please enter a valid email address.");
+                return false;
+            }
+
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters long.");
+                return false;
+            }
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match.");
+                return false;
+            }
+
+            return true;
+        }
+
+        switchAuthTab(document.body.dataset.activeTab || "sign-in");
+    </script>
+</body>
+</html>
