@@ -4,7 +4,9 @@ aiomysql
 pyyaml
 watchdog
 pydantic
+email-validator
 cryptography
 python-multipart
 jinja2
 gunicorn
+PyJWT>=2.8.0
