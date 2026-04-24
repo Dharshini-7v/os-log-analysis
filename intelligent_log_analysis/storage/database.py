@@ -530,6 +530,33 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"Failed to get user {username}: {e}")
             return None
+
+    async def get_all_users(self) -> List[Dict[str, Any]]:
+        """Get all active users for auth cache warmup."""
+        if not self._get_relational_pool():
+            return []
+
+        try:
+            if self.db_type == "postgresql":
+                query = """
+                    SELECT username, password_hash, email, full_name, role, created_at
+                    FROM users
+                    WHERE is_active = TRUE
+                """
+                rows = await self._execute_query_many(query)
+                return [dict(row) for row in rows]
+            elif self.db_type == "mysql":
+                query = """
+                    SELECT username, password_hash, email, full_name, role, created_at
+                    FROM users
+                    WHERE is_active = TRUE
+                """
+                return await self._execute_query_many(query)
+            return []
+
+        except Exception as e:
+            logger.error(f"Failed to get all users: {e}")
+            return []
     
     async def update_user_login(self, username: str) -> None:
         """Update user's last login timestamp."""

@@ -54,6 +54,11 @@ def hash_password(password: str) -> str:
     """Hash password using SHA-256."""
     return hashlib.sha256(password.encode()).hexdigest()
 
+
+def normalize_username(username: str) -> str:
+    """Normalize usernames for consistent storage and lookup."""
+    return username.strip().lower()
+
 def validate_password(password: str) -> tuple[bool, str]:
     """Validate password strength."""
     if len(password) < 6:
@@ -71,38 +76,69 @@ def validate_email(email: str) -> bool:
 
 def validate_username(username: str) -> tuple[bool, str]:
     """Validate username."""
+    username = username.strip()
     if len(username) < 3:
         return False, "Username must be at least 3 characters long"
     if len(username) > 20:
         return False, "Username must be less than 20 characters"
     if not re.match(r'^[a-zA-Z0-9_]+$', username):
         return False, "Username can only contain letters, numbers, and underscores"
-    if username.lower() in DEMO_USERS:
+    if normalize_username(username) in DEMO_USERS:
         return False, "Username already exists"
     return True, "Username is valid"
+
+
+def cache_registered_user(
+    username: str,
+    password_hash: str,
+    name: Optional[str] = None,
+    email: Optional[str] = None,
+    role: str = "viewer",
+    created_at: Optional[Any] = None,
+) -> None:
+    """Cache a registered user in memory for auth and session checks."""
+    normalized_username = normalize_username(username)
+    if not normalized_username:
+        return
+
+    created_value = created_at
+    if hasattr(created_value, "isoformat"):
+        created_value = created_value.isoformat()
+
+    DEMO_USERS[normalized_username] = {
+        "password": password_hash,
+        "role": role or "viewer",
+        "name": name or normalized_username,
+        "email": email or f"{normalized_username}@local.user",
+        "created_at": created_value or datetime.now().isoformat(),
+        "is_hashed": True,
+    }
 
 def create_user(username: str, password: str) -> bool:
     """Create a new user account."""
     try:
-        normalized_username = username.lower()
+        normalized_username = normalize_username(username)
         # Hash the password
         hashed_password = hash_password(password)
         name = normalized_username
         email = f"{normalized_username}@local.user"
         role = "viewer"
         
-        # Add user to DEMO_USERS (in production, this would be saved to database)
-        DEMO_USERS[normalized_username] = {
-            "password": hashed_password,
-            "role": role,
-            "name": name,
-            "email": email,
-            "created_at": datetime.now().isoformat(),
-            "is_hashed": True  # Flag to indicate password is hashed
-        }
+        # Cache user locally and also persist when a database is available.
+        cache_registered_user(
+            normalized_username,
+            hashed_password,
+            name=name,
+            email=email,
+            role=role,
+        )
         
-        # Also try to save to database if available
-        asyncio.create_task(save_user_to_database(normalized_username, hashed_password, email, name, role))
+        # Also try to save to database if available.
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(save_user_to_database(normalized_username, hashed_password, email, name, role))
+        except RuntimeError:
+            logger.warning(f"No running event loop; skipped immediate database save for user {normalized_username}")
         
         return True
     except Exception as e:
@@ -117,6 +153,31 @@ async def save_user_to_database(username: str, password_hash: str, email: str, n
             await db.create_user(username, password_hash, email, name, role)
     except Exception as e:
         logger.error(f"Failed to save user to database: {e}")
+
+
+async def load_registered_users_from_database() -> None:
+    """Warm the in-memory auth cache from the database on startup."""
+    try:
+        db = await get_database()
+        if not db:
+            return
+
+        users = await db.get_all_users()
+        for user in users:
+            username = normalize_username(user.get("username", ""))
+            if username in {"admin", "analyst", "demo"}:
+                continue
+
+            cache_registered_user(
+                username,
+                user.get("password_hash", ""),
+                name=user.get("full_name"),
+                email=user.get("email"),
+                role=user.get("role", "viewer"),
+                created_at=user.get("created_at"),
+            )
+    except Exception as e:
+        logger.error(f"Failed to load users from database: {e}")
 
 app = FastAPI(title="Intelligent Log Analysis Dashboard", version="1.0.0")
 
@@ -141,6 +202,8 @@ async def startup_event():
             logger.info("Database initialized")
         else:
             logger.info("Using existing database connection")
+
+        await load_registered_users_from_database()
         
         # Initialize log parser
         parser_config = ParserConfig(
@@ -275,8 +338,9 @@ def verify_token(token: str):
         return None
 
 def authenticate_user(username: str, password: str):
-    if username in DEMO_USERS:
-        user_data = DEMO_USERS[username]
+    normalized_username = normalize_username(username)
+    if normalized_username in DEMO_USERS:
+        user_data = DEMO_USERS[normalized_username]
         # Check if password is hashed
         if user_data.get("is_hashed", False):
             # Compare with hashed password
@@ -292,7 +356,7 @@ def get_current_user(request: Request):
     token = request.cookies.get("access_token")
     if not token:
         return None
-    username = verify_token(token)
+    username = normalize_username(verify_token(token) or "")
     if not username or username not in DEMO_USERS:
         return None
     return {"username": username, **DEMO_USERS[username]}
@@ -777,7 +841,24 @@ async def register_user(
 @app.post("/login")
 async def login(request: Request, username: str = Form(...), password: str = Form(...)):
     """Handle login form submission."""
-    user = authenticate_user(username, password)
+    normalized_username = normalize_username(username)
+    user = authenticate_user(normalized_username, password)
+
+    if not user:
+        db = await get_database()
+        if db:
+            db_user = await db.get_user(normalized_username)
+            if db_user and hash_password(password) == db_user.get("password_hash", ""):
+                cache_registered_user(
+                    normalized_username,
+                    db_user.get("password_hash", ""),
+                    name=db_user.get("full_name"),
+                    email=db_user.get("email"),
+                    role=db_user.get("role", "viewer"),
+                    created_at=db_user.get("created_at"),
+                )
+                user = DEMO_USERS.get(normalized_username)
+
     if not user:
         return auth_template_response(
             request,
@@ -794,9 +875,13 @@ async def login(request: Request, username: str = Form(...), password: str = For
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": username, "role": user["role"]}, 
+        data={"sub": normalized_username, "role": user["role"]}, 
         expires_delta=access_token_expires
     )
+
+    db = await get_database()
+    if db:
+        await db.update_user_login(normalized_username)
     
     response = RedirectResponse(url="/dashboard", status_code=302)
     response.set_cookie(key="access_token", value=access_token, httponly=True)
